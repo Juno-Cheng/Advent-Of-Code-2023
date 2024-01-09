@@ -3,111 +3,71 @@ import random
 
 
 
-#=================================Aux===================================
-
-def TwoDList(input): #Turns String to 2D Matrix
-    split_text = input.split('\n')#Gets each line
-    main = []
-    for line in split_text:
-        sub = []
-        for char in line:
-            sub.append(char)
-        main.append(sub)
-
-    return main
-
-def calculateList(list):
-    value = 0
-    index = len(list) - 1
-    for item in list:
-        tens = 1
-        for i in range(index):
-            tens = tens * 10
-        value += int(item) * tens
-        index -= 1
-    return value
-
-def findSymbol(list ,col, row, length): #Finds symbol in an area
-    #Symbols
-    symbol = "$#*"
-    #Checks neighbors
-    for x in [-1,0,1]:
-        for y in [-1,0,1]:
-            if (col + x) < 0 or (col + x) > length or (row + y) < 0 or (row + y) > length:
-                continue
-            elif (list[col+x][row+y] in symbol):
-                return True
-    return False
 #=================================Part 1===================================
-checker = "1234567890"
+symbols = {'/', '$', '#', '@', '*', '&', '-', '=', '+', '%'}
+numbers = "0123456789"
+
+def check_adjacent(matrix, row, start_col, length, max_rows, max_cols):
+    values = [-1, 0, 1]
+    for i in range(length):  # Iterate over each digit in the number
+        col = start_col - length + i  # Calculate the column position for each digit
+        for x in values:
+            for y in values:
+                if x == 0 and y == 0:
+                    continue  # Skip the number itself
+
+                adj_row = row + x
+                adj_col = col + y
+
+                if 0 <= adj_row < max_rows and 0 <= adj_col < max_cols:
+                    if matrix[adj_row][adj_col] in symbols:  # Ensure 'symbols' is defined
+                        return True
+    return False
+
+def Matrix(input):
+    lines = input.split('\n')
+    matrix = [list(line) for line in lines]
+    return matrix
+
 def solution_1(input):
-    matrix = TwoDList(input)
-    total = 0
+    matrix = Matrix(input)
+    total_sum = 0
+    max_rows = len(matrix)
+    max_cols = len(matrix[0]) if max_rows > 0 else 0
 
+    for row, line in enumerate(matrix):
+        number = ""
+        column = 0
+        while column < len(line):
+            char = line[column]
+            if char.isdigit():
+                number += str(char)
+            else:
+                if number:
+                    # Check if the number is adjacent to a symbol
+                    if check_adjacent(matrix, row, column, len(number), max_rows, max_cols):
+                        total_sum += int(number)
+                number = ""
+            column += 1  # Increment column index
 
-    row = 0
-    for line in matrix:
-        values = [] #Get values in a line
-        positions = []#Get starting location of each value
-        index = 0
-        print(line)
-        num = []
-        for item in line:
+        if number:
+            if check_adjacent(matrix, row, column, len(number), max_rows, max_cols):
+                print(number)
+                total_sum += int(number)
 
-            if num == [] and ((item) in checker): #Number is found, num is empty, add and add index
-                print("Condition 1\n")
-                num.append((item))
-                positions.append(index)
-            elif num != [] and ((item) in checker): #Number is found, num is not empty, simply add
-                print("Condition 2\n")
-
-                num.append((item))
-
-            elif num == [] and  ((item) not in checker): #Symbol/. is found, but num is empty, continue
-                print("Condition 3\n")
-                continue
-
-            elif num != [] and  ((item) not in checker): #Symbol/. is found, but num is not empty, continue
-                print("Condition 4\n")
-
-                values.append(calculateList(num))
-                num = []
-            index += 1
-        
-        print(values)
-        print(positions)
-        #Check if values/position are valid
-        for i in range(len(values)-1):
-            if findSymbol(matrix, positions[i], row, len(str(values[i]))) == True:
-                total += int(values[i])
-        row += 1
-
-        return total
-
-
-
-
+    return total_sum
 
 
 #=================================Part 2===================================
 
-    
+
 
 
 
 
 
 #=================================Main===================================
-input = """467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598.."""
+input = """"""
 
 print(solution_1(input))
 
